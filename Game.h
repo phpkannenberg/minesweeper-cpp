@@ -11,11 +11,16 @@ class Game
 {
 public:
     Game() : board(), status(GameStatus::InProgress) { };
+    
+    // implement a minesweeper match
     void play();
+    
 private:
     Board board;
     GameStatus status;
+    
     void read_action(PlayerAction& action, std::size_t& row, std::size_t& col);
+    
     void perform_action(const PlayerAction& action, const std::size_t row, const std::size_t col);
 };
 
