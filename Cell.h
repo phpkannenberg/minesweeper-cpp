@@ -3,17 +3,20 @@
 
 class Board;
 
-enum class Content { Empty, Mine };
-enum class Status { Hidden, Seen, Marked };
+enum class CellContent { Empty, Mine };
+enum class CellStatus { Hidden, Revealed, Marked };
 
 class Cell
 {
-friend class Board;
 public:
-    Cell(): content(Content::Empty), status(Status::Hidden) { };
+    Cell(): content(CellContent::Empty), status(CellStatus::Hidden) { };
+    const CellContent get_content() const { return content; }
+    void set_content(CellContent c) { content = c; }
+    const CellStatus get_status() const { return status; }
+    void set_status(CellStatus s) { status = s; }
 private:
-    Content content;
-    Status status;
+    CellContent content;
+    CellStatus status;
 };
 
 #endif

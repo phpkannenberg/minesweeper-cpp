@@ -1,9 +1,9 @@
-#include "Board.h"
+#include "Game.h"
 #include <iostream>
 
 int main()
 {
-    Board board;
-    board.print(std::cout);
+    Game game;
+    game.play();
     return 0;
 }
