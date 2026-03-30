@@ -4,6 +4,7 @@
 #include <random>
 #include <cstdlib>
 #include <iostream>
+#include <queue>
 
 Board::Board(std::size_t h, std::size_t w):
     height(h), width(w), n_bombs((h * w) / 8), board(h * w)
@@ -64,21 +65,27 @@ void Board::print()
 
 const GameStatus Board::reveal_cell(const std::size_t& row, const std::size_t& col)
 {
-    Cell &cell = board[row * width + col];
+    std::size_t idx = row * width + col;
+    Cell &cell = board[idx];
     
-    // change nothing in case cell was already previously revealed
+    // cell was already previously revealed
     if (cell.get_status() == CellStatus::Revealed)
     {
         std::cout << "Cell already revealed.\n";
         return GameStatus::InProgress;
     }
     
-    cell.set_status(CellStatus::Revealed);
-    
+    // cannot reveal a marked cell
+    else if (cell.get_status() == CellStatus::Marked)
+    {
+        std::cout << "Cannot reveal a marked cell! Perform a \"toggle flag\" action first.\n";
+        return GameStatus::InProgress;
+    }
+        
     // if there is no mine in the cell
     if (cell.get_content() == CellContent::Empty)
     {
-        ++revealed_cells;
+        reveal_cell_bfs(idx);
         if (fully_revealed()) return GameStatus::Won;
         return GameStatus::InProgress;
     }
@@ -124,4 +131,46 @@ const std::size_t Board::count_nearby_mines(const std::size_t idx)
         }
     }
     return mine_count;
+}
+
+void Board::reveal_cell_bfs(const std::size_t idx)
+{
+    std::queue<std::size_t> q;
+    
+    board[idx].set_status(CellStatus::Revealed);
+    ++revealed_cells;
+    q.push(idx);
+    
+    while (!q.empty())
+    {
+        auto curr_idx = q.front();
+        q.pop();
+        Cell &curr_cell = board[curr_idx];
+        
+        // only pushes neighbors of cells with no mines in the surrounding
+        if (curr_cell.get_n_nearby_mines() == 0)
+        {
+            for (int i = -1; i <= 1; ++i)  // rows
+            {
+                int curr_row = (curr_idx / width) + i;
+                if (curr_row < 0 || curr_row >= height) continue;  // check if out of bounds
+                for (int j = -1; j <= 1; ++j)  // columns
+                {
+                    int curr_col = (curr_idx % width) + j;
+                    if (curr_col < 0 || curr_col >= width) continue;  //check if out of bounds
+                    
+                    // execution gets here only if within bounds
+                    std::size_t neighbor_idx = curr_idx + (width * i) + j;
+                    Cell &neighbor_cell = board[neighbor_idx];
+                    
+                    if (neighbor_cell.get_status() == CellStatus::Hidden)
+                    {
+                        neighbor_cell.set_status(CellStatus::Revealed);
+                        ++revealed_cells;
+                        q.push(neighbor_idx);
+                    }
+                }
+            }
+        }
+    }
 }

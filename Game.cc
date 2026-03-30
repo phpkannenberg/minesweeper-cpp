@@ -7,8 +7,6 @@ void Game::play()
 {
     while (status == GameStatus::InProgress)
     {
-        // TODO: welcome
-        
         // print board
         board.print();
         
@@ -17,15 +15,17 @@ void Game::play()
         std::size_t row, col;
         read_action(action, row, col);
         perform_action(action, row, col);
-                
+                    
         // analyze if game ended after last action
         if (status == GameStatus::Lost)
         {
+            board.reveal_all_cells();
             board.print();
-            std::cout << "Oops, there was a bomb in there. GAME OVER!\n";
+            std::cout << "OOPS, there was a bomb in there. GAME OVER!\n";
         }
         else if (status == GameStatus::Won)
         {
+            board.reveal_all_cells();
             board.print();
             std::cout << "Congratulations! YOU WON!\n";
         }

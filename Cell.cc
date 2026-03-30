@@ -1,7 +1,8 @@
 #include "Cell.h"
 #include <cstdlib>
+#include <string>
 
-const char Cell::print() const
+const std::string Cell::print() const
 {
     char c;
     switch (status)
